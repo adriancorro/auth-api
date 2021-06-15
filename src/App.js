@@ -42,6 +42,7 @@ export default function App() {
             {/* <Home /> */}
             <LoginForm /> 
           </Route>
+          
         </Switch>
       </div>
     </Router>
