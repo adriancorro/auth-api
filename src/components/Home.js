@@ -1,5 +1,6 @@
-import React, { useContext, createContext, useState } from "react";
+import React, { useContext, createContext, useState, useEffect } from "react";
 import UserContext from './UserContext';
+import LoginForm from './LoginForm';
 
 
 import {
@@ -26,6 +27,12 @@ import {
 // login page? No! You're already logged in. Try it out,
 // and you'll see you go back to the page you visited
 // just *before* logging in, the public page.
+
+//ADRIAN NOTES
+// Changes are made to the LoginPage () and useAuth () functions.
+// The original file is https://reactrouter.com/web/example/auth-workflow
+
+
 
 export default function AuthExample() {
   return (
@@ -60,6 +67,11 @@ export default function AuthExample() {
   );
 }
 
+const statusLogin2 = {
+  statusLoginUser2: 2,
+ }
+
+ 
 const fakeAuth = {
   isAuthenticated: false,
   signin(cb) {
@@ -91,21 +103,27 @@ function useAuth() {
   return useContext(authContext);
 }
 
+
+
 function useProvideAuth() {
   const [user, setUser] = useState(false);
-  const { jwtToken } = useContext(UserContext);
+  const { statusLoginUser } = useContext(UserContext);
+  
 
-  console.log(jwtToken)
   const signin = cb => {
     return fakeAuth.signin(() => {
-      setUser("user");
-      cb();
+
+        setUser(statusLoginUser);
+        cb();
+    
+     
     });
   };
 
   const signout = cb => {
     return fakeAuth.signout(() => {
       setUser(null);
+
       cb();
     });
   };
@@ -118,10 +136,13 @@ function useProvideAuth() {
 }
 
 function AuthButton() {
+  const { statusLoginUser } = useContext(UserContext);
+  
   let history = useHistory();
   let auth = useAuth();
-
-  return auth.user ? (
+ 
+ // return auth.user ? (
+  return statusLoginUser ? (
     <p>
       Welcome!{" "}
       <button
@@ -169,6 +190,8 @@ function ProtectedPage() {
 }
 
 function LoginPage() {
+   
+  const { statusLoginUser } = useContext(UserContext);
   let history = useHistory();
   let location = useLocation();
   let auth = useAuth();
@@ -180,10 +203,23 @@ function LoginPage() {
     });
   };
 
+
+  if(statusLoginUser){
+    auth.signin(() => {
+      history.replace(from);
+    });
+  }
+
+
   return (
     <div>
       <p>You must log in to view the page at {from.pathname}</p>
+      <UserContext.Provider value={statusLogin2}>
+         <LoginForm />
+      </UserContext.Provider>  
       <button onClick={login}>Log in</button>
     </div>
   );
 }
+
+
