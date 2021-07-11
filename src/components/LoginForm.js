@@ -1,10 +1,10 @@
 import React, { useContext, createContext, useState, useEffect } from "react";
 import AlertMessage from "./AlertMessage.js";
-import CatchStateContext from "./Home.js";
 import UserContext from './UserContext';
-import Home from './Home';
-
-import {
+import Home_main_user from './Home_main_user';
+import fetchAutPost from '../functions/fetchAutPost.js'; 
+  
+import { 
   BrowserRouter as Router,
   Switch,
   Route,
@@ -15,42 +15,41 @@ import {
 } from "react-router-dom";
 
   function LoginForm() {
-  const [userLoginStatus, setUserLoginStatus] = useState(false);
-  const [userLoginStatusError, setUserLoginStatusError] = useState(false);
+  const [userLoginStatusError, setUserLoginStatusError] = useState(false);   
+  let token 
+  let user
+  let isAuthenticatedFetch = {isAuthenticated : false}
 
-  const { statusLoginUser2 } = useContext(UserContext);
-   
-
-  let history = useHistory();
-/*   useHistory(); El gancho useHistory nos ayuda a acceder al objeto de historial, que
-   se usa para navegar programáticamente a otras rutas usando métodos de empujar y reemplazar
-  history.replace("/home"); */
-
+  
   const statusLogin = {
-    statusLoginUser: userLoginStatus,
+    statusLoginUser: localStorage.getItem('User'),
    }
+   token = localStorage.getItem('Token')
+   user = localStorage.getItem('User')
 
+   console.log(user)
+
+   if(token){
+    fetchAutPost(token)
+       isAuthenticatedFetch.isAuthenticated = localStorage.getItem('IsAuthenticated')
+   }
 
   const EnviarDatos =  event =>   {
     event.preventDefault();
       let email = event.target.elements.email.value
       let password = event.target.elements.password.value
-     
-      // forma 1 async
-
-      async function myLog() {
+      async function MyLog() {
        // setUserLoginStatus(await fetchGetStatusDataPromise(email, password)) 
-    let statusAuthenticated = await fetchGetStatusDataPromise(email, password) 
-
-    console.log(statusAuthenticated)
-        if ( statusAuthenticated == true ){
-          setUserLoginStatus(email)
-          setUserLoginStatusError(false)
+    let userLoginToken = await fetchGetStatusDataPromise(email, password) 
+        if ( userLoginToken.length > 30 ){
+          localStorage.setItem('User', email)
+          user = localStorage.getItem('User')
+           /*  Al cambiar el valor a este useState (userLoginStatusError)  en realidad
+           cambiamos el estado y luego estamos renderizando */
+          setUserLoginStatusError("false") 
         }else{
-          setUserLoginStatus(false)
-          setUserLoginStatusError(statusAuthenticated)
+          setUserLoginStatusError(userLoginToken)
         }
-
       } 
       
       // forma 2  promise
@@ -62,17 +61,15 @@ import {
     /*   async function myLog(val) {
         console.log(await val);
       }  */
-      myLog()   
-    
+      MyLog()
     }
 
-
     return(
-      !userLoginStatus ? 
+      isAuthenticatedFetch.isAuthenticated == false ?  
         (<div className="container ">
          <form  onSubmit={EnviarDatos} className="col-6 border shadow-lg p-3 mb-5 bg-body rounded" >
             <div className="mb-6">
-               <p className="text-center fs-3"> Login </p>
+               <p className="text-center fs-3"> Login</p>
             </div>
             <div className="mb-3">
                 <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>
@@ -93,9 +90,8 @@ import {
          </div>)
 
          : 
-
        <UserContext.Provider value={statusLogin}>
-         <Home />
+         <Home_main_user /> 
       </UserContext.Provider>  
     )
 }
@@ -135,7 +131,6 @@ const FetchGetStatusDataAsync = async (email, password) => {
 // Way 2
 const fetchGetStatusDataPromise = (email, password)  => new Promise(function(resolve, reject) {
  
-let a 
   fetch('user/sign-in', {
     method: 'POST',
     body: JSON.stringify({email: email, password: password}),
@@ -154,8 +149,9 @@ let a
     if(!data.error){
       /*  useHistory
       El useHistorygancho le da acceso a la historyinstancia que puede usar para navegar. */
-      resolve( data.isAuthenticated)
-      console.log(`Status dataStatus.isAuthenticated: ${data.isAuthenticated}`)
+      resolve(data.jwtToken)
+      localStorage.setItem('Token', data.jwtToken)
+      console.log(`1 Status dataStatus.isAuthenticated: ${data.jwtToken}`)
     }else{
       console.log(data.isAuthenticated)
       resolve(data.error)
@@ -198,5 +194,13 @@ const fetchGetStatus = (email, password)  => {
     .catch(e => console.log(e));  
 
 }
+
+
+
+
+
+
+
+
 
 export default LoginForm;

@@ -2,6 +2,7 @@ import React from 'react';
 import Home from './components/Home.js';
 import RegistrationForm from './components/RegistrationForm.js';
 import LoginForm from './components/LoginForm.js';
+import Test from './components/Test.js';
 import {
   BrowserRouter as Router,
   Switch,
@@ -22,7 +23,10 @@ export default function App() {
               <Link to="/register">Register</Link>
             </li>
             <li>
-              <Link to="/home">Home</Link>
+              <Link to="/home">test Home</Link>
+            </li>
+            <li>
+              <Link to="/test">test</Link>
             </li>
           </ul>
         </nav>
@@ -30,18 +34,19 @@ export default function App() {
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
+        <Route path="/test">
+           <Test /> 
+          </Route>
           <Route path="/home">
-           {/*  <About /> */}
            <Home /> 
           </Route>
           <Route path="/register">
-            {/* <Users /> */}
             <RegistrationForm /> 
           </Route>
           <Route path="/">
-            {/* <Home /> */}
             <LoginForm /> 
           </Route>
+        
           
         </Switch>
       </div>

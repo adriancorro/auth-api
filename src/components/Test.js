@@ -1,8 +1,4 @@
-import React, { useContext, createContext, useState, useEffect } from "react";
-import UserContext from './UserContext';
-import LoginForm from './LoginForm';
-
-
+import React, { useContext, createContext, useState } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -28,14 +24,8 @@ import {
 // and you'll see you go back to the page you visited
 // just *before* logging in, the public page.
 
-//ADRIAN NOTES
-// Changes are made to the LoginPage () and useAuth () functions.
-// The original file is https://reactrouter.com/web/example/auth-workflow
-
-
-
 export default function AuthExample() {
-  return ( 
+  return (
     <ProvideAuth>
       <Router>
         <div>
@@ -45,7 +35,7 @@ export default function AuthExample() {
             <li>
               <Link to="/public">Public Page</Link>
             </li>
-            <li> 
+            <li>
               <Link to="/protected">Protected Page</Link>
             </li>
           </ul>
@@ -67,11 +57,6 @@ export default function AuthExample() {
   );
 }
 
-const statusLogin2 = {
-  statusLoginUser2: 2,
- }
-
- 
 const fakeAuth = {
   isAuthenticated: false,
   signin(cb) {
@@ -103,27 +88,19 @@ function useAuth() {
   return useContext(authContext);
 }
 
-
-
 function useProvideAuth() {
-  const [user, setUser] = useState(false);
-  const { statusLoginUser } = useContext(UserContext);
-  
+  const [user, setUser] = useState(null);
 
   const signin = cb => {
     return fakeAuth.signin(() => {
-
-        setUser(statusLoginUser);
-        cb();
-    
-     
+      setUser("user");
+      cb();
     });
   };
 
   const signout = cb => {
     return fakeAuth.signout(() => {
       setUser(null);
-
       cb();
     });
   };
@@ -136,13 +113,10 @@ function useProvideAuth() {
 }
 
 function AuthButton() {
-  const { statusLoginUser } = useContext(UserContext);
-  
   let history = useHistory();
   let auth = useAuth();
- console.log(statusLoginUser)
- // return auth.user ? (
-  return statusLoginUser ? (
+
+  return auth.user ? (
     <p>
       Welcome!{" "}
       <button
@@ -190,8 +164,6 @@ function ProtectedPage() {
 }
 
 function LoginPage() {
-   
-  const { statusLoginUser } = useContext(UserContext);
   let history = useHistory();
   let location = useLocation();
   let auth = useAuth();
@@ -203,23 +175,10 @@ function LoginPage() {
     });
   };
 
-
-  if(statusLoginUser){
-    auth.signin(() => {
-      history.replace(from);
-    });
-  }
-
-
   return (
     <div>
       <p>You must log in to view the page at {from.pathname}</p>
-      <UserContext.Provider value={statusLogin2}>
-         <LoginForm />
-      </UserContext.Provider>  
       <button onClick={login}>Log in</button>
     </div>
   );
 }
-
-
