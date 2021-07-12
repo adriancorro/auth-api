@@ -15,24 +15,34 @@ import {
 } from "react-router-dom";
 
   function LoginForm() {
+  const [authorizationStatus, setAuthorizationStatus] = useState({isAuthenticated:false});  
   const [userLoginStatusError, setUserLoginStatusError] = useState(false);   
   let token 
   let user
-  let isAuthenticatedFetch = {isAuthenticated : false}
+
 
   
   const statusLogin = {
     statusLoginUser: localStorage.getItem('User'),
    }
+
    token = localStorage.getItem('Token')
    user = localStorage.getItem('User')
-
-   console.log(user)
-
-   if(token){
-    fetchAutPost(token)
-       isAuthenticatedFetch.isAuthenticated = localStorage.getItem('IsAuthenticated')
-   }
+   console.log(token)
+   
+  useEffect(() => {
+    const requestInfoAuthorization = async ()  => {
+      let requestAut = await  fetchAutPost(token)
+      console.log(requestAut)
+       if(requestAut.isAuthenticated == false){
+        localStorage.removeItem('IsAuthenticated');
+        localStorage.removeItem('Token'); 
+        localStorage.removeItem('User'); 
+      }
+    } 
+    requestInfoAuthorization()
+  },[token]);
+   
 
   const EnviarDatos =  event =>   {
     event.preventDefault();
@@ -46,7 +56,7 @@ import {
           user = localStorage.getItem('User')
            /*  Al cambiar el valor a este useState (userLoginStatusError)  en realidad
            cambiamos el estado y luego estamos renderizando */
-          setUserLoginStatusError("false") 
+          setUserLoginStatusError("ready") 
         }else{
           setUserLoginStatusError(userLoginToken)
         }
@@ -62,10 +72,11 @@ import {
         console.log(await val);
       }  */
       MyLog()
+
     }
 
     return(
-      isAuthenticatedFetch.isAuthenticated == false ?  
+      !token ?  
         (<div className="container ">
          <form  onSubmit={EnviarDatos} className="col-6 border shadow-lg p-3 mb-5 bg-body rounded" >
             <div className="mb-6">
@@ -90,6 +101,7 @@ import {
          </div>)
 
          : 
+         
        <UserContext.Provider value={statusLogin}>
          <Home_main_user /> 
       </UserContext.Provider>  
@@ -150,11 +162,15 @@ const fetchGetStatusDataPromise = (email, password)  => new Promise(function(res
       /*  useHistory
       El useHistorygancho le da acceso a la historyinstancia que puede usar para navegar. */
       resolve(data.jwtToken)
-      localStorage.setItem('Token', data.jwtToken)
+      if(data.jwtToken.length > 30){
+        localStorage.setItem('Token', data.jwtToken)
+      }
       console.log(`1 Status dataStatus.isAuthenticated: ${data.jwtToken}`)
     }else{
-      console.log(data.isAuthenticated)
+      
       resolve(data.error)
+      localStorage.setItem('Token', [])
+      console.log("7777777777777777777777777777777777777777777777777777")
     }
   })
   .catch(e => console.log(e));   

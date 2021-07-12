@@ -4,9 +4,18 @@ import React from "react";
 
 const AlertMessage = (props)  =>{
     return (
-      <div className="alert alert-danger alert-dismissible fade show" role="alert">
+      props.messageAlert == "ready" ?  
+
+      <div className="alert alert-success alert-dismissible fade show" role="alert">
        <strong>Holy guacamole!</strong> {props.messageAlert}.
       </div>
+
+      :
+
+      <div className="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Holy guacamole!</strong> {props.messageAlert}.
+     </div>
+      
     )
   }
 

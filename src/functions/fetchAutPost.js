@@ -21,13 +21,14 @@ const fetchAutPost= (token)  => new Promise(function(resolve) {
         resolve(data)
        /* INVESTIGAR SI ESTO ES TAN NECESARIO AQUI  debemos primero esperar que data sea resuelto, luego se le asignara a localStorage IsAuthenticated
         el valor de data. Sin el resolve localStorage IsAuthenticated seria igual a null */
-        localStorage.setItem('IsAuthenticated', data.isAuthenticated)
+        localStorage.setItem('IsAuthenticated', data)
         console.log(data)
+        console.log(data.isAuthenticated)
         console.log(`aut fetch Status dataStatus.isAuthenticated: ${data}`)
       }else{
         console.log(data)
         resolve(data.error)
-        localStorage.setItem('isAuthenticated', data.isAuthenticated);
+        localStorage.setItem('isAuthenticated', data);
       }
     })
     .catch(e => console.log(e));   
